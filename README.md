@@ -28,8 +28,8 @@
 
 8.to convert empty assembly for VARBINARY literal:
 
-    C:\Exe\BinaryFormatter.exe .\bin\Release\SQL2017_KeyAsm.dll .\SQL2017_KeyAsm.sql 40ClrStrictSecurity-Cert.pvk SQL2017-ClrStrictSecurity-Cert.cer
-
+    C:\Exe\BinaryFormatter.exe .\bin\Release\SQL2017_KeyAsm.dll .\SQL2017_KeyAsm.sql 40
+	
 The following steps should be incorporated into a single SQL script. That script can be run once manually, or can be made into a re-runnable (idempotent) script to be used as a PreDeploy script for the main Project. Please note that steps 1 and 4 require the output from steps 8 and 9 above, respectively.
 
 ```sql
@@ -50,3 +50,38 @@ Finally, the following steps are a one-time setup for the Project (and any new P
 1.in main Project, go to Project Properties | SQLCLR tab | Signing… button; check the `Sign the assembly` check-box, `Browse…` in `Choose a strong name key file`, find `SigningKey.pfx` in the `Signing Key` project folder.
 
 2.(optional) set up a `PreDeploy` SQL script consisting of the T-SQL commands in the previous set of steps.
+
+In practice, once you have completed the above steps on `master` with the fake assembly, do the following:
+
+1.build the true assembly to be inserted in the DB (Release).
+2.create hex from it:
+
+	C:\Exe\BinaryFormatter.exe .\bin\Release\SqlServerUdf.dll .\SqlServerUdf.sql 40
+
+3.open a query in the target database (NOT master), and:
+
+	CREATE ASSEMBLY [SqlServerUdf] FROM 0x...
+
+replacing `...` with the hex dump created in the previous step.
+
+Create a function wrapper for each UDF like:
+
+```sql
+CREATE FUNCTION RegexIsMatch(@text NVARCHAR(MAX) NULL, @pattern NVARCHAR(200) NOT NULL, @options INT NULL) 
+RETURNS BIT
+AS EXTERNAL NAME [SqlServerUdf].[SqlServerUdf.TextUdf].[RegexIsMatch];
+GO
+```
+
+Note that here the first portion of the name is the assembly name, the second the full class name, and the third the method name.
+
+Use `DROP FUNCTION RegexIsMatch` to remove the wrapper.
+
+To execute the CLR function just invoke the wrapper:
+
+```sql
+SELECT dbo.RegexIsMatch('alpha beta', '\bbe*', 0)
+SELECT * FROM [Item] WHERE [dbo].[RegexIsMatch]([Lemma],'^[ac].*r$', 0) = 1
+```
+
+In the second example notice the `= 1` which is required for comparing the returned boolean.

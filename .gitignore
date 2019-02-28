@@ -37,3 +37,5 @@ packages/
 !Lib/**/*.dll
 *.scgdat
 PythiaApi/wwwroot/plugins/*.dll
+*.jfm
+*.dbmdl
