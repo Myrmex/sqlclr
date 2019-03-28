@@ -36,7 +36,7 @@ Thanks to Solomon Rutzky who answered my question at <https://stackoverflow.com/
 
     C:\Exe\BinaryFormatter.exe .\bin\Release\SQL2017_KeyAsm.dll .\SQL2017_KeyAsm.sql 40
 	
-The following steps should be incorporated into a single SQL script. That script can be run once manually, or can be made into a re-runnable (idempotent) script to be used as a PreDeploy script for the main Project. Please note that steps 1 and 4 require the output from steps 8 and 9 above, respectively.
+The following steps should be incorporated into a single SQL script. That script can be run once manually, or can be made into a re-runnable (idempotent) script to be used as a PreDeploy script for the main Project. Please note that lines 1 and 4 below require the output from steps 4 and 5 above, respectively.
 
 ```sql
 CREATE CERTIFICATE [TempCert] FROM BINARY = 0x{contents_of_Sql2017Clr-Cert.sql};
