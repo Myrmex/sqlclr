@@ -50,5 +50,27 @@ namespace SqlServerUdf
                 ? SqlBoolean.True
                 : SqlBoolean.False;
         }
+
+        /// <summary>
+        /// Return the result of replacing <paramref name="text"/> with
+        /// <paramref name="replacement"/> using the specified
+        /// <paramref name="pattern"/>.
+        /// </summary>
+        /// <param name="text">The input text.</param>
+        /// <param name="pattern">The pattern.</param>
+        /// <param name="replacement">The replacement text.</param>
+        /// <param name="options">The options. See the values of the
+        /// <see cref="RegexOptions"/> enum.</param>
+        /// <returns>Result.</returns>
+        [SqlFunction(Name = "RegexReplace", IsDeterministic = true, IsPrecise = true)]
+        public static SqlString RegexReplace(SqlString text, SqlString pattern,
+            SqlString replacement, SqlInt32 options)
+        {
+            if (text.IsNull || pattern.IsNull) return text;
+
+            return Regex.Replace((string)text, (string)pattern,
+                (string)replacement,
+                options.IsNull ? RegexOptions.None : (RegexOptions)options.Value);
+        }
     }
 }
