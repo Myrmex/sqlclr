@@ -2,11 +2,13 @@
 
 Procedure from <https://sqlquantumleap.com/2017/08/09/sqlclr-vs-sql-server-2017-part-2-clr-strict-security-solution-1/>.
 
+Thanks to Solomon Rutzky who answered my question at <https://stackoverflow.com/questions/55399532/deploy-clr-udf-in-sql-server-2017-procedure/55402006?noredirect=1#comment97531583_55402006>.
+
 ## Solution
 
 1.create New Project (a SQL Server Database Project), `SQL2017_KeyAsm`, in your existing Visual Studio Solution.
 
-2.go to `Project` menu | `Properties…` | SQLCLR tab | Signing… button: check the `Sign the assembly` check-box, `New…` in `Choose a strong name key file` drop-down, enter in a password.
+2.go to `Project` menu | `Properties…` | SQLCLR tab | Signing… button: check the `Sign the assembly` check-box, `New…` in `Choose a strong name key file` drop-down, enter in a password. Ensure that the `Protect my key file with a password` checkbox is checked.
 
 3.build the project (Release).
 
@@ -37,7 +39,7 @@ Procedure from <https://sqlquantumleap.com/2017/08/09/sqlclr-vs-sql-server-2017-
 The following steps should be incorporated into a single SQL script. That script can be run once manually, or can be made into a re-runnable (idempotent) script to be used as a PreDeploy script for the main Project. Please note that steps 1 and 4 require the output from steps 8 and 9 above, respectively.
 
 ```sql
-CREATE CERTIFICATE [TempCert] FROM BINARY = 0x{contents_of_ClrStrictSecurity-Cert.sql};
+CREATE CERTIFICATE [TempCert] FROM BINARY = 0x{contents_of_Sql2017Clr-Cert.sql};
 CREATE LOGIN [TempLogin] FROM CERTIFICATE [TempCert];
 GRANT UNSAFE ASSEMBLY TO [TempLogin];
 CREATE ASSEMBLY [Sql2017Clr-KeyAsm] FROM 0x{contents_of_SQL2017_KeyAsm.sql};
@@ -79,7 +81,7 @@ RETURNS BIT
 AS EXTERNAL NAME [SqlServerUdf].[SqlServerUdf.TextUdf].[RegexIsMatch];
 GO
 
-CREATE FUNCTION RegexIsMatch(@text NVARCHAR(MAX) NULL, @pattern NVARCHAR(MAX) NOT NULL, @replacement NVARCHAR(MAX), @options INT NULL) 
+CREATE FUNCTION RegexReplace(@text NVARCHAR(MAX) NULL, @pattern NVARCHAR(MAX) NOT NULL, @replacement NVARCHAR(MAX), @options INT NULL) 
 RETURNS NVARCHAR(MAX)
 AS EXTERNAL NAME [SqlServerUdf].[SqlServerUdf.TextUdf].[RegexReplace];
 GO

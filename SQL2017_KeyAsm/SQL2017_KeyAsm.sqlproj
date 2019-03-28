@@ -24,7 +24,7 @@
     <IncludeCompositeObjects>True</IncludeCompositeObjects>
     <TargetDatabaseSet>True</TargetDatabaseSet>
     <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>SQL2017_KeyAsm.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>SQL2017_KeyAsm.pfx</AssemblyOriginatorKeyFile>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -62,7 +62,12 @@
     <Folder Include="Properties" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="SQL2017_KeyAsm.snk" />
     <None Include="PreDeploy.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
 </Project>
